@@ -1,0 +1,160 @@
+.writeoffs-container {
+    min-height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.writeoffs-content {
+    padding: 20px 40px;
+}
+
+.writeoffs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.writeoffs-header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 28px;
+}
+
+.export-button {
+    padding: 10px 20px;
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.export-button:hover {
+    background-color: #1565c0;
+}
+
+.writeoffs-filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: 2px solid #ddd;
+    background: white;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    border-color: #1976d2;
+    color: #1976d2;
+}
+
+.filter-btn.active {
+    background: #1976d2;
+    color: white;
+    border-color: #1976d2;
+}
+
+.stats-summary {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    border-left: 4px solid;
+}
+
+.stat-card.overdue { border-left-color: #f44336; }
+.stat-card.critical { border-left-color: #ff9800; }
+.stat-card.warning { border-left-color: #ffc107; }
+.stat-card.ok { border-left-color: #4caf50; }
+
+.stat-value {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+.table-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow-x: auto;
+}
+
+.writeoffs-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.writeoffs-table th {
+    background-color: #f5f5f5;
+    padding: 14px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+}
+
+.writeoffs-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    color: #555;
+}
+
+.table-row:hover {
+    background-color: #f0f7ff;
+}
+
+.expiry-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.expiry-ok { background-color: #e8f5e9; color: #2e7d32; }
+.expiry-warning { background-color: #fff3e0; color: #e65100; }
+.expiry-critical { background-color: #ffebee; color: #c62828; font-weight: 600; }
+.expiry-overdue { background-color: #f44336; color: white; font-weight: 600; }
+.expiry-unknown { background-color: #f5f5f5; color: #999; }
+
+.loading-indicator {
+    padding: 60px;
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+}
+
+.no-data {
+    text-align: center;
+    padding: 40px !important;
+    color: #999;
+}
+
+.writeoffs-error {
+    margin-bottom: 20px;
+    padding: 12px;
+    background-color: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+}
