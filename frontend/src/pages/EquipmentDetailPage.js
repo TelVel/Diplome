@@ -74,7 +74,7 @@ const EquipmentDetailPage = () => {
                 status,
                 location: locationId || null,
                 write_off_date: writeOffDate || null,
-		purchase_date: purchaseDate || null,
+		        purchase_date: purchaseDate || null,
             };
 
             const response = await api.patch(`/api/equipment/${id}/`, payload);
@@ -263,6 +263,12 @@ const EquipmentDetailPage = () => {
                                 ) : (
                                     <div className="field-value">{equipment.location_name || '—'}</div>
                                 )}
+                            </div>
+                            <div className="detail-field">
+                                <label>Ответственный</label>
+                                <div className="field-value">
+                                    {equipment.responsible_person_name || '—'}
+                                </div>
                             </div>
                             
                             <div className="detail-field">

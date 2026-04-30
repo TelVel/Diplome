@@ -158,3 +158,9 @@
     color: #c62828;
     border-radius: 4px;
 }
+
+.expiry-written-off { 
+    background-color: #f5f5f5; 
+    color: #999; 
+    text-decoration: line-through;
+}

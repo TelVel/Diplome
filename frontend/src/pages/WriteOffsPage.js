@@ -9,31 +9,56 @@ const WriteOffsPage = () => {
     const [equipment, setEquipment] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [filter, setFilter] = useState('all'); // all, expiring_soon, written_off
+    const [filter, setFilter] = useState('all');
 
     const fetchWriteOffs = async () => {
         try {
             setLoading(true);
-            const params = {};
+            const params = { page_size: 10000 };
             
-            const today = new Date();
-            const threeMonthsFromNow = new Date();
-            threeMonthsFromNow.setMonth(today.getMonth() + 3);
-            
-            if (filter === 'expiring_soon') {
-                params.write_off_before = threeMonthsFromNow.toISOString().split('T')[0];
-                params.status = 'active';
-            } else if (filter === 'written_off') {
+            if (filter === 'written_off') {
                 params.status = 'written_off';
             }
             
             params.ordering = 'write_off_date';
             
             const response = await api.get('/api/equipment/', { params });
-            setEquipment(response.data);
+            
+            // Фильтрация на клиенте
+            let filteredData = response.data;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (filter === 'all') {
+                // Всё кроме списанного
+                filteredData = response.data.filter(item => item.status !== 'written_off');
+            } else if (filter === 'expiring_soon') {
+                // Только у кого срок списания меньше 90 дней, активные или в ремонте
+                const ninetyDaysFromNow = new Date();
+                ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+                
+                filteredData = response.data.filter(item => {
+                    if (item.status === 'written_off') return false;
+                    if (!item.write_off_date) return false;
+                    
+                    const writeOffDate = new Date(item.write_off_date);
+                    return writeOffDate <= ninetyDaysFromNow && writeOffDate >= today;
+                });
+            } else if (filter === 'overdue') {
+                // Просроченные, но не списанные
+                filteredData = response.data.filter(item => {
+                    if (item.status === 'written_off') return false;
+                    if (!item.write_off_date) return false;
+                    
+                    const writeOffDate = new Date(item.write_off_date);
+                    return writeOffDate < today;
+                });
+            }
+            
+            setEquipment(filteredData);
             setError('');
         } catch (err) {
-            setError('Ошибка загрузки данных о списании');
+            setError('Ошибка загрузки данных');
         } finally {
             setLoading(false);
         }
@@ -58,7 +83,8 @@ const WriteOffsPage = () => {
         return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     };
 
-    const getExpiryStatus = (days) => {
+    const getExpiryStatus = (days, status) => {
+        if (status === 'written_off') return { label: 'Списано', className: 'expiry-written-off' };
         if (days === null) return { label: 'Не указан', className: 'expiry-unknown' };
         if (days < 0) return { label: `Просрочено на ${Math.abs(days)} дн.`, className: 'expiry-overdue' };
         if (days <= 30) return { label: `${days} дн.`, className: 'expiry-critical' };
@@ -106,19 +132,25 @@ const WriteOffsPage = () => {
                         className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
                         onClick={() => setFilter('all')}
                     >
-                        Всё оборудование
+                        Всё активное
                     </button>
                     <button
                         className={`filter-btn ${filter === 'expiring_soon' ? 'active' : ''}`}
                         onClick={() => setFilter('expiring_soon')}
                     >
-                        Истекает в ближайшие 3 мес.
+                        Истекает до 90 дней
+                    </button>
+                    <button
+                        className={`filter-btn ${filter === 'overdue' ? 'active' : ''}`}
+                        onClick={() => setFilter('overdue')}
+                    >
+                        Просрочено
                     </button>
                     <button
                         className={`filter-btn ${filter === 'written_off' ? 'active' : ''}`}
                         onClick={() => setFilter('written_off')}
                     >
-                        Уже списано
+                        Списано
                     </button>
                 </div>
 
@@ -127,7 +159,10 @@ const WriteOffsPage = () => {
                 <div className="stats-summary">
                     <div className="stat-card overdue">
                         <div className="stat-value">
-                            {equipment.filter(item => getDaysUntilWriteOff(item.write_off_date) !== null && getDaysUntilWriteOff(item.write_off_date) < 0).length}
+                            {equipment.filter(item => {
+                                const days = getDaysUntilWriteOff(item.write_off_date);
+                                return days !== null && days < 0 && item.status !== 'written_off';
+                            }).length}
                         </div>
                         <div className="stat-label">Просрочено</div>
                     </div>
@@ -135,7 +170,7 @@ const WriteOffsPage = () => {
                         <div className="stat-value">
                             {equipment.filter(item => {
                                 const days = getDaysUntilWriteOff(item.write_off_date);
-                                return days !== null && days >= 0 && days <= 30;
+                                return days !== null && days >= 0 && days <= 30 && item.status !== 'written_off';
                             }).length}
                         </div>
                         <div className="stat-label">До 30 дней</div>
@@ -144,7 +179,7 @@ const WriteOffsPage = () => {
                         <div className="stat-value">
                             {equipment.filter(item => {
                                 const days = getDaysUntilWriteOff(item.write_off_date);
-                                return days !== null && days > 30 && days <= 90;
+                                return days !== null && days > 30 && days <= 90 && item.status !== 'written_off';
                             }).length}
                         </div>
                         <div className="stat-label">30-90 дней</div>
@@ -153,7 +188,7 @@ const WriteOffsPage = () => {
                         <div className="stat-value">
                             {equipment.filter(item => {
                                 const days = getDaysUntilWriteOff(item.write_off_date);
-                                return days !== null && days > 90;
+                                return days !== null && days > 90 && item.status !== 'written_off';
                             }).length}
                         </div>
                         <div className="stat-label">Более 90 дней</div>
@@ -170,8 +205,9 @@ const WriteOffsPage = () => {
                                     <th>Инв. номер</th>
                                     <th>Наименование</th>
                                     <th>Статус</th>
+                                    <th>Ответственный</th>
                                     <th>Срок списания</th>
-				    <th>Дата закупки</th>
+				                    <th>Дата закупки</th>
                                     <th>Осталось</th>
                                 </tr>
                             </thead>
@@ -185,19 +221,21 @@ const WriteOffsPage = () => {
                                 ) : (
                                     equipment.map((item) => {
                                         const days = getDaysUntilWriteOff(item.write_off_date);
-                                        const expiry = getExpiryStatus(days);
+                                        const expiry = getExpiryStatus(days, item.status);
                                         
                                         return (
                                             <tr key={item.id} className="table-row">
                                                 <td>{item.inventory_number}</td>
                                                 <td>{item.name}</td>
                                                 <td>
-                                                    <span className={`expiry-badge ${item.status === 'written_off' ? 'expiry-overdue' : 'expiry-ok'}`}>
-                                                        {item.status === 'written_off' ? 'Списано' : 'Активно'}
+                                                    <span className={`expiry-badge ${item.status === 'written_off' ? 'expiry-written-off' : 'expiry-ok'}`}>
+                                                        {item.status === 'written_off' ? 'Списано' : 
+                                                        item.status === 'repair' ? 'В ремонте' : 'Активно'}
                                                     </span>
                                                 </td>
+                                                <td>{item.responsible_person_name || '—'}</td>
                                                 <td>{formatDate(item.write_off_date)}</td>
-						<td>{formatDate(item.purchase_date)}</td>
+						                        <td>{formatDate(item.purchase_date)}</td>
                                                 <td>
                                                     <span className={`expiry-badge ${expiry.className}`}>
                                                         {expiry.label}

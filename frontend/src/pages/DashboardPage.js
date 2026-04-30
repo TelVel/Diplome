@@ -15,7 +15,8 @@ const SORT_FIELDS = {
     name: 'Наименование',
     status: 'Статус',
     location_name: 'Местоположение',
-    purchase_date: 'Дата закупки', 
+    responsible_person_name: 'Ответственный',
+    purchase_date: 'Дата закупки',
     write_off_date: 'Срок списания',
 };
 
@@ -177,7 +178,8 @@ const handleRowClick = (id) => {
                                                 </span>
                                             </td>
                                             <td>{item.location_name || '—'}</td>
-					    <td>{formatDate(item.purchase_date)}</td>
+					                        <td>{item.responsible_person_name || '—'}</td>
+                                            <td>{formatDate(item.purchase_date)}</td>
                                             <td>{formatDate(item.write_off_date)}</td>
                                         </tr>
                                     ))

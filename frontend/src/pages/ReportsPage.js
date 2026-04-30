@@ -108,7 +108,8 @@ const ReportsPage = () => {
                             <th>Серийный номер</th>
                             <th>Статус</th>
                             <th>Местоположение</th>
-			    <th>Дата закупки</th>
+                            <th>Ответственный</th>
+			                <th>Дата закупки</th>
                             <th>Срок списания</th>
                         </tr>
                     </thead>
@@ -126,7 +127,8 @@ const ReportsPage = () => {
                           item.status === 'repair' ? 'В ремонте' : 
                           item.status === 'written_off' ? 'Списано' : item.status}</td>
                     <td>${item.location_name || '—'}</td>
-		    <td>${item.purchase_date ? new Date(item.purchase_date).toLocaleDateString('ru-RU') : '—'}</td>
+                    <td>{item.responsible_person_name || '—'}</td>
+		            <td>${item.purchase_date ? new Date(item.purchase_date).toLocaleDateString('ru-RU') : '—'}</td>
                     <td>${item.write_off_date ? new Date(item.write_off_date).toLocaleDateString('ru-RU') : '—'}</td>
                 </tr>
             `;
@@ -232,7 +234,8 @@ const ReportsPage = () => {
                                         <th>Наименование</th>
                                         <th>Статус</th>
                                         <th>Местоположение</th>
-					<th>Дата закупки</th>
+                                        <th>Ответственный</th>
+					                    <th>Дата закупки</th>
                                         <th>Срок списания</th>
                                     </tr>
                                 </thead>
@@ -250,7 +253,8 @@ const ReportsPage = () => {
                                                 </span>
                                             </td>
                                             <td>{item.location_name || '—'}</td>
-					    <td>{item.purchase_date ? new Date(item.purchase_date).toLocaleDateString('ru-RU') : '—'}</td>
+                                            <td>{item.responsible_person_name || '—'}</td>
+					                        <td>{item.purchase_date ? new Date(item.purchase_date).toLocaleDateString('ru-RU') : '—'}</td>
                                             <td>
                                                 {item.write_off_date 
                                                     ? new Date(item.write_off_date).toLocaleDateString('ru-RU')
